@@ -14,12 +14,15 @@
             </div>
           
       </form>
-
+ 
       <div class = "downloadbtn" v-if="ScrapeData">
+        <button class = "btn btn-primary form-group mb-2 ml-2" v-on:click="JsonToCsv"></button>
           <button class = "btn btn-primary form-group mb-2 ml-2" v-on:click="download">
         
             {{JsonData.data.products[0].title}}
           <vue-json-to-csv v-if="ScrapeData"
+
+          
           :json-data = [{title:[JsonData.data.products[0].title],id:[JsonData.data.products[0].id]}]
           :csv-title =" 'Shopify Scrape Data' + `${this.url}` ">
           </vue-json-to-csv></button>
@@ -38,7 +41,7 @@
                 <ul class="list-group list-group-flush">
                   <li class="list-group-item"><p class = "card-text">{{value.title}}</p> </li>
                   <li class="list-group-item bg-success"><p class = "card-text">SKU = {{value.variants[0].sku}}</p>  </li>
-                  <li class="list-group-item"><p class = "card-text">{{value.body_html}}</p></li>
+                  <li class="list-group-item"><span v-html = "value.body_html" ></span></li>
                 </ul>
               </div>
             </div>
@@ -79,9 +82,14 @@ methods:{
    this.ScrapeData = res,
    this.JsonData = res  
    },
-  download(){
-    console.log("clicked")
-  },
+
+   JsonToCsv(){
+    //  console.log(this.JsonData.data.products)
+     for(var i = 0; i < this.JsonData.data.products.length; i++){
+       console.log(this.JsonData.data.products)
+      //  console.log({title: this.JsonData.data.products.title, id:this.JsonData.data.products.id})
+     }
+   }
   
 },
 created(){
