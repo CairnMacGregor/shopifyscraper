@@ -16,18 +16,23 @@
       </form>
  
       <div class = "downloadbtn" v-if="ScrapeData">
-        <button class = "btn btn-primary form-group mb-2 ml-2" v-on:click="JsonToCsv"></button>
-          <button class = "btn btn-primary form-group mb-2 ml-2" v-on:click="download">
-        
-            {{JsonData.data.products[0].title}}
-          <vue-json-to-csv v-if="ScrapeData"
-
-          
-          :json-data = [{title:[JsonData.data.products[0].title],id:[JsonData.data.products[0].id]}]
-          :csv-title =" 'Shopify Scrape Data' + `${this.url}` ">
-          </vue-json-to-csv></button>
-          {{json-data}}
+          <button class = "btn btn-primary form-group mb-2 ml-2">
+         
+          <JsonCSV
+          name = ""
+          :data   = "CSVData">
+          </JsonCSV>
+          </button>
       </div>
+
+      <!-- <div class = "downloadbtn" v-if="ScrapeData" v-on:click="Download">
+          <button class = "btn btn-primary form-group mb-2 ml-2">
+        
+        Download all info as JSON
+          
+          
+          </button>
+      </div> -->
 
  
 
@@ -64,33 +69,31 @@
 
 <script>
 import axios from 'axios'
-import VueJsonToCsv from 'vue-json-to-csv'
+import JsonCSV from 'vue-json-csv'
+
+
 export default {
   data(){
     return{
       ScrapeData: "",
-      JsonData: []
+      JsonData: [],
+      CSVData: []
     }
   },
   components:{
-    VueJsonToCsv
-  },
+    JsonCSV
+    },
 
 methods:{
  async onSubmit(){
    const res = await axios.get(`${this.url}` + "/products.json")
    this.ScrapeData = res,
-   this.JsonData = res  
-   },
+   this.JsonData = res 
 
-   JsonToCsv(){
-    //  console.log(this.JsonData.data.products)
-     for(var i = 0; i < this.JsonData.data.products.length; i++){
-       console.log(this.JsonData.data.products)
-      //  console.log({title: this.JsonData.data.products.title, id:this.JsonData.data.products.id})
+   for(var i = 0; i < this.JsonData.data.products.length; i++){
+       this.CSVData.push({title: this.JsonData.data.products[i].title, id:this.JsonData.data.products[i].id});
      }
-   }
-  
+   }, 
 },
 created(){
 },
