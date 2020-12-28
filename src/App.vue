@@ -7,6 +7,8 @@
 <script>
 import Scraper from './components/Scraper.vue'
 
+
+
 export default {
   name: 'App',
   components: {

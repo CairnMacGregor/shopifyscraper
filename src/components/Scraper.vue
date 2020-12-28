@@ -1,19 +1,41 @@
 <template>
 <section>
+<div v-if= "!ScrapeData" class = "main_page">
+  <h1>Welcome to ShopifyScraper</h1>
+  <p class = "info">How to use:</p>
+    <ul class = "how_to">
+      <li>
+        Find a store powered by shopify
+      </li>
+      <li>
+        Copy the URL and paste into the search bar
+      </li>
+      <li>
+        Either download all products info, or simply select the ones you wish to download
+      </li>
+    </ul>
 
-   <form class = "form-inline" v-on:submit.prevent="onSubmit">
+   <form class = "form-inline"  v-on:submit.prevent="onSubmit">
          <div class="form-group mb-2">
-             <label for="">Enter the URL </label>
              <input class="form-control form-control-md" 
                 type="text"
                 v-model="url" 
-                id="url">
+                id="url"
+                placeholder="Enter URL here">
         </div>
          <div class="form-group mb-2">
                 <input type="submit" value ="Submit" class = "btn btn-primary">
             </div>
       </form>
+
+
+    </div>
   <div class = "Button_container">
+     <div class = "downloadbtn" v-if="ScrapeData" >
+         
+          <button  v-on:click="NewSearch()" class = "btn btn-primary" >  Search for a new store</button>
+      
+      </div>
       <div class = "downloadbtn" v-if="ScrapeData" >
           <vue-json-to-csv
               :json-data="CSVData"
@@ -73,6 +95,7 @@ import VueJsonToCsv from 'vue-json-to-csv'
 export default {
   data(){
     return{
+      url: "",
       ScrapeData: "",
       JsonData: [],
       CSVData: [],
@@ -105,6 +128,15 @@ methods:{
      }
    }, 
 
+   NewSearch(){
+      this.ScrapeData = "",
+      this.JsonData = [],
+      this.CSVData = [],
+      this.CSVDataSelected = [],
+      this.CheckedCards = []
+      this.url = ""
+   }, 
+
 
    },
 
@@ -114,8 +146,19 @@ created(){
 </script>
 
 <style>
-form
-{
+.main_page ul{
+  list-style: none;
+}
+
+.info{
+  font-size: 2rem;
+}
+
+.how_to{
+  color:darkblue;
+}
+
+form{
   display: flex;
   justify-content: center;
   background: grey;
@@ -123,23 +166,25 @@ form
 }
 
 .downloadbtn{
-  background: grey;
-  padding:0 2rem;
+  padding:0 1rem;
+  margin: 2rem 0;
 }
 
+.Button_container{
+   display: flex;
+   justify-content:center;
+   background: white;
+  }
+
+  
 .ProductContainer{
+  padding-top: 2rem;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     grid-gap: 10px;
     background: grey;
  }
- 
- .Button_container{
-   display: flex;
-   justify-content:center;
-   background: grey;
-   padding-bottom: 2rem;
-  }
+
 input{
   width: 100%;
 }
