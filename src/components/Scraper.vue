@@ -12,51 +12,49 @@
          <div class="form-group mb-2">
                 <input type="submit" value ="Submit" class = "btn btn-primary">
             </div>
-          
       </form>
- 
-      <div class = "downloadbtn" v-if="ScrapeData">
-          <button class = "btn btn-primary form-group mb-2 ml-2">
-         
-          <JsonCSV
-          name = ""
-          :data   = "CSVData">
-          </JsonCSV>
-          </button>
+  <div class = "Button_container">
+      <div class = "downloadbtn" v-if="ScrapeData" >
+          <vue-json-to-csv
+              :json-data="CSVData"
+              :csv-title= "`${this.url}` + 'product' + '_' +'data' + '_' + 'CSV'"
+          >
+          <button class = "btn btn-primary" >Download all Data as CSV</button>
+          </vue-json-to-csv>
       </div>
 
-      <!-- <div class = "downloadbtn" v-if="ScrapeData" v-on:click="Download">
-          <button class = "btn btn-primary form-group mb-2 ml-2">
-        
-        Download all info as JSON
-          
-          
-          </button>
-      </div> -->
-
- 
+      <div class = "downloadbtn" v-if="CheckedCards.length > 0" >
+          <vue-json-to-csv
+              :json-data="CSVDataSelected"
+              :csv-title= "'Selected_Products_From_' + `${this.url}`"
+          >
+          <button  class = "btn btn-primary" > Download selected as CSV</button>
+          </vue-json-to-csv>
+      </div>
+  </div>
 
       <div class="ProductContainer" v-if="ScrapeData">
       <div v-for="(value, index) in ScrapeData.data.products"  
         v-bind:key="index">
-            <div v-if="value.variants[0].sku" class = "card">
+        
+            <div  class = "card">
+              <input
+               class = "checkmark"
+              type= "checkbox" 
+              v-model="CheckedCards" 
+              :value= value
+              v-on:change = DownloadSelected()
+              >
+              <p class = "Input-label">Add {{value.title}}To Download</p>
+              <p>{{ index + 1}}</p>
               <img class = "card-img-top" :src="value.images[0].src" alt="">
               <div class="card-body">
                
                 <ul class="list-group list-group-flush">
                   <li class="list-group-item"><p class = "card-text">{{value.title}}</p> </li>
-                  <li class="list-group-item bg-success"><p class = "card-text">SKU = {{value.variants[0].sku}}</p>  </li>
+                  <li v-if="value.variants[0].sku" class="list-group-item bg-success"><p class = "card-text" >SKU = {{value.variants[0].sku}}</p></li>
+                  <li v-else class="list-group-item bg-danger"><p class = "card-text" >SKU = Product does not have an SKU 😔</p></li>
                   <li class="list-group-item"><span v-html = "value.body_html" ></span></li>
-                </ul>
-              </div>
-            </div>
-            <div v-else class = "card">
-              <img class = "card-img-top" :src="value.images[0].src" alt="">
-              <div class="card-body">
-                <ul class="list-group list-group-flush ">
-                  <li class="list-group-item"><p class = "card-text">{{value.title}}</p> </li>
-                  <li class="list-group-item card text-light bg-danger"><p class = "card-text">SKU = Product does not have an SKU 😔</p>  </li>
-                  <li class="list-group-item"><p  class = "card-text">{{value.body_html}}</p></li>
                 </ul>
               </div>
             </div>
@@ -69,7 +67,7 @@
 
 <script>
 import axios from 'axios'
-import JsonCSV from 'vue-json-csv'
+import VueJsonToCsv from 'vue-json-to-csv'
 
 
 export default {
@@ -77,15 +75,19 @@ export default {
     return{
       ScrapeData: "",
       JsonData: [],
-      CSVData: []
+      CSVData: [],
+      CSVDataSelected:[],
+      CheckedCards:[]
     }
   },
   components:{
-    JsonCSV
+    VueJsonToCsv
     },
 
 methods:{
  async onSubmit(){
+   this.ScrapeData = "",
+   this.JsonData = [] 
    const res = await axios.get(`${this.url}` + "/products.json")
    this.ScrapeData = res,
    this.JsonData = res 
@@ -94,7 +96,18 @@ methods:{
        this.CSVData.push({title: this.JsonData.data.products[i].title, id:this.JsonData.data.products[i].id});
      }
    }, 
-},
+
+    DownloadSelected(){
+      this.CSVDataSelected = [] 
+
+      for(var i = 0; i < this.CheckedCards.length; i++){
+       this.CSVDataSelected.push({title: this.CheckedCards[i].title, id:this.CheckedCards[i].id});
+     }
+   }, 
+
+
+   },
+
 created(){
 },
 }
@@ -111,6 +124,7 @@ form
 
 .downloadbtn{
   background: grey;
+  padding:0 2rem;
 }
 
 .ProductContainer{
@@ -119,4 +133,18 @@ form
     grid-gap: 10px;
     background: grey;
  }
-</style>
+ 
+ .Button_container{
+   display: flex;
+   justify-content:center;
+   background: grey;
+   padding-bottom: 2rem;
+  }
+input{
+  width: 100%;
+}
+  .Input-label{
+    font-size: 1rem;
+  }
+
+ </style>
